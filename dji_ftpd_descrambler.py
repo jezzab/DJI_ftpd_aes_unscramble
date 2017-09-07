@@ -31,9 +31,13 @@ def which(program):
 
     return None
 
-
+#firmware < .1000 key:
 key = "\x74\x68\x69\x73\x2d\x61\x65\x73\x2d\x6b\x65\x79\x00\x00\x00\x00"
-iv  = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#firmware .1000 key
+#key = "\x59\x50\x31\x4E\x61\x67\x37\x5A\x52\x26\x44\x6A\x00\x00\x00\x00"
+
+iv  = "\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x61\x62\x63\x64\x65\x66"
+
 daCypha = AES.new(key, AES.MODE_CBC, iv)
 message = ""
 os.environ["PATH"] = os.getcwd() + "/wget_bins" + os.pathsep + os.environ["PATH"]                 
@@ -61,16 +65,6 @@ if len(sys.argv) > 1:
     elif os.path.isfile(sys.argv[1]):
         message = open(sys.argv[1], 'rb').read() 
         gplViolation = daCypha.decrypt(message)
-
-	# undo the weird xor stuff that DJI does to try and beat us
-        s = bytearray(gplViolation)
-        for i in range(10):
-                s[i] ^= 0x30 + i
-        for i in range(10,16):
-                s[i] ^= 0x57 + i
-        gplViolation = str(s)
-	encoder = PKCS7Encoder()
-	gplViolation = encoder.decode(str(s))
 
         sys.stdout.write(gplViolation)
     elif os.path.isdir(sys.argv[1]):
